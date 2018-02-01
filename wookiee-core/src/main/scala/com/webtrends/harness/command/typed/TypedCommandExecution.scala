@@ -5,16 +5,15 @@ import akka.util.Timeout
 
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.reflect.ClassTag
-
 
 case class ExecuteTypedCommand(args: Any)
 
-class TypedCommandExecution[T, V: ClassTag](name: String, args: T)  {
+object TypedCommandExecution {
 
-  implicit val timeout: Timeout = 2 seconds
+  // TODO - Typed/Configurable
+  implicit val timeout: Timeout = 10 seconds
 
-  def execute()(implicit executionContext: ExecutionContext): Future[V] = {
+  def execute[U, V](name: String, args: U)(implicit executionContext: ExecutionContext): Future[V] = {
     TypedCommandManager.commands.get(name) match {
       case Some(commandActor) =>
         (commandActor ? ExecuteTypedCommand(args)).map(_.asInstanceOf[V])
